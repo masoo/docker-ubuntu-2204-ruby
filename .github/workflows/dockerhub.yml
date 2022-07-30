@@ -3,9 +3,9 @@ name: Build / Push for Ubuntu 22.04 ruby
 on:
   workflow_dispatch:
   schedule:
-    # UTC 15:10
-    # JST 0:10
-    - cron: "10 15 * * *"
+    # UTC 15:10 on Saturday
+    # JST 0:10 on Sunday
+    - cron: "10 15 * * 6"
 jobs:
   deploy:
     name: deploy
