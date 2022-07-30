@@ -31,6 +31,7 @@ RUN set -ex \
         ca-certificates \
   ' \
   && apt-get update \
+  && apt-get -y upgrade \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $BaseDeps \
   && rm -rf /var/lib/apt/lists/* \
 	&& git clone https://github.com/sstephenson/ruby-build.git /opt/rbenv/plugins/ruby-build \
