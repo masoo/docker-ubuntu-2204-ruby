@@ -1,6 +1,7 @@
 name: Build / Push for Ubuntu 22.04 ruby
 
 on:
+  workflow_dispatch:
   schedule:
     # UTC 15:10
     # JST 0:10
