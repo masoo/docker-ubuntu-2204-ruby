@@ -19,7 +19,8 @@ runs:
       env:
         DOCKER_USERNAME: ${{ inputs.docker-username }}
         DOCKER_PASSWORD: ${{ inputs.docker-password }}
-    - name: Build ruby
+    - name: Build ${{ inputs.ruby-version }}
+      shell: bash
       run: docker build -t masoo/ubuntu-2204-ruby:${{ inputs.ruby-version }} --build-arg ${{ inputs.ruby-version }} .
     - name: Push to docker hub :${{ inputs.ruby-version }}
       uses: actions-hub/docker@master
