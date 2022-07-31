@@ -1,3 +1,4 @@
+# ref. https://github.com/chef/rubydistros
 FROM ubuntu:22.04
 
 ENV RUBY_MAJOR 3.0
