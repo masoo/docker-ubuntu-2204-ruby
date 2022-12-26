@@ -31,6 +31,7 @@ RUN set -ex \
         tzdata \
         locales \
         ca-certificates \
+        rustc \
   ' \
   && apt-get update \
   && DEBCONF_NOWARNINGS=yes apt-get -y upgrade \
