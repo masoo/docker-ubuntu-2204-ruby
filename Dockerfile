@@ -1,8 +1,8 @@
 # ref. https://github.com/chef/rubydistros
 FROM ubuntu:22.04
 
-ENV RUBY_MAJOR 3.0
-ARG RUBY_VERSION=3.0.6
+ENV RUBY_MAJOR 3.3
+ARG RUBY_VERSION=3.3.1
 ENV RUBY_VERSION $RUBY_VERSION
 ENV PATH /opt/ruby/bin:$PATH:/opt/rbenv/plugins/ruby-build/bin
 
