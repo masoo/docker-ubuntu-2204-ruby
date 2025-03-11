@@ -2,7 +2,7 @@
 FROM ubuntu:22.04
 
 ENV RUBY_MAJOR 3.4
-ARG RUBY_VERSION=3.4.1
+ARG RUBY_VERSION=3.4.2
 ENV RUBY_VERSION $RUBY_VERSION
 ENV PATH /opt/ruby/bin:$PATH:/opt/rbenv/plugins/ruby-build/bin
 
