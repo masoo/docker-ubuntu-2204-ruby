@@ -41,7 +41,7 @@ RUN set -ex \
 	&& git clone https://github.com/sstephenson/ruby-build.git /opt/rbenv/plugins/ruby-build
 
 FROM base2 AS builder
-ARG RUBY_VERSION=3.4.5
+ARG RUBY_VERSION=3.4.6
 ENV RUBY_VERSION=${RUBY_VERSION}
 ENV PATH=/opt/rbenv/plugins/ruby-build/bin:$PATH
 RUN set -ex \
@@ -49,7 +49,7 @@ RUN set -ex \
 
 FROM base AS final
 COPY --from=builder /opt/ruby /opt/ruby
-ARG RUBY_VERSION=3.4.5
+ARG RUBY_VERSION=3.4.6
 ENV RUBY_VERSION=${RUBY_VERSION}
 
 LABEL maintainer="masoo" \
