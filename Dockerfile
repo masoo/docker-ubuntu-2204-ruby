@@ -38,7 +38,7 @@ RUN set -ex \
 FROM base AS base2
 RUN set -ex \
   && mkdir -p /opt/rbenv/plugins \
-	&& git clone https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
+	&& git clone --depth 1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
 
 FROM base2 AS builder
 ARG RUBY_VERSION=3.4.7
