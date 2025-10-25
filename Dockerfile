@@ -36,6 +36,8 @@ RUN set -ex \
   && mkdir -p /opt/ruby
 
 FROM base AS base2
+# Cache buster to force fresh git clone when new Ruby versions are added
+ARG CACHE_BUST=default
 RUN set -ex \
   && mkdir -p /opt/rbenv/plugins \
 	&& git clone --depth 1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
