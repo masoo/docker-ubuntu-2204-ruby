@@ -14,6 +14,10 @@ inputs:
     description: "Enable cache-to for registry cache"
     required: false
     default: "false"
+  cache-bust:
+    description: "Cache bust value for ruby-build"
+    required: false
+    default: "default"
 
 runs:
   using: "composite"
@@ -34,7 +38,7 @@ runs:
         tags: masoo/ubuntu-2204-ruby:${{ inputs.ruby-version }}
         build-args: |
           RUBY_VERSION=${{ inputs.ruby-version }}
-          CACHE_BUST=$(date +%Y-%W)
+          CACHE_BUST=${{ inputs.cache-bust }}
         cache-from: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache
         cache-to: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache,mode=max
     - name: Build and push Ruby ${{ inputs.ruby-version }} (without cache-to)
@@ -46,5 +50,5 @@ runs:
         tags: masoo/ubuntu-2204-ruby:${{ inputs.ruby-version }}
         build-args: |
           RUBY_VERSION=${{ inputs.ruby-version }}
-          CACHE_BUST=$(date +%Y-%W)
+          CACHE_BUST=${{ inputs.cache-bust }}
         cache-from: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache

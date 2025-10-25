@@ -14,7 +14,12 @@ jobs:
   build-latest:
     name: Build Ruby "3.4.7" (latest)
     runs-on: ubuntu-latest
+    outputs:
+      cache-bust: ${{ steps.cache-bust.outputs.value }}
     steps:
+      - name: Calculate cache-bust value
+        id: cache-bust
+        run: echo "value=$(date +%Y-%W)" >> $GITHUB_OUTPUT
       - name: Checkout code
         uses: actions/checkout@v4
       - uses: ./.github/actions/docker_hub_push
@@ -23,6 +28,7 @@ jobs:
           docker-password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           ruby-version: ${{ env.LATEST_RUBY_VERSION }}
           enable-cache-to: "true"
+          cache-bust: ${{ steps.cache-bust.outputs.value }}
 
   build-others:
     name: Build Ruby ${{ matrix.ruby-version }}
@@ -49,3 +55,4 @@ jobs:
           docker-password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           ruby-version: ${{ matrix.ruby-version }}
           enable-cache-to: "false"
+          cache-bust: ${{ needs.build-latest.outputs.cache-bust }}

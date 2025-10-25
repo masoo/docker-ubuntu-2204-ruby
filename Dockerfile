@@ -39,6 +39,7 @@ FROM base AS base2
 # Cache buster to force fresh git clone when new Ruby versions are added
 ARG CACHE_BUST=default
 RUN set -ex \
+  && echo "Cache bust: $CACHE_BUST" \
   && mkdir -p /opt/rbenv/plugins \
 	&& git clone --depth 1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
 
