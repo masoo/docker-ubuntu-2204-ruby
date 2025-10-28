@@ -35,13 +35,17 @@ RUN set -ex \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /opt/ruby
 
-FROM base AS base2
-# Cache buster to force fresh git clone when new Ruby versions are added
-ARG CACHE_BUST=default
+# Stage for ruby-build (cached independently from CACHE_BUST)
+FROM base AS ruby-build-base
 RUN set -ex \
-  && echo "Cache bust: $CACHE_BUST" \
   && mkdir -p /opt/rbenv/plugins \
 	&& git clone --depth 1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
+
+# Stage with cache buster (does not affect ruby-build layer)
+FROM ruby-build-base AS base2
+ARG CACHE_BUST=default
+RUN set -ex \
+  && echo "Cache bust: $CACHE_BUST"
 
 FROM base2 AS builder
 ARG RUBY_VERSION=3.4.7
