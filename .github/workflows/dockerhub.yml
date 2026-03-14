@@ -7,6 +7,9 @@ on:
     # JST 0:10 on Friday
     - cron: "10 15 * * 4"
 
+permissions:
+  contents: read
+
 env:
   LATEST_RUBY_VERSION: "4.0.1"
 
