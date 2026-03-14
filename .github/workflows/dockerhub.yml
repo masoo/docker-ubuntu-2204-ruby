@@ -24,7 +24,7 @@ jobs:
         id: cache-bust
         run: echo "value=$(date +%Y-%W)" >> $GITHUB_OUTPUT
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: ./.github/actions/docker_hub_push
         with:
           docker-username: ${{ secrets.DOCKER_USERNAME }}
@@ -52,7 +52,7 @@ jobs:
         ]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: ./.github/actions/docker_hub_push
         with:
           docker-username: ${{ secrets.DOCKER_USERNAME }}
