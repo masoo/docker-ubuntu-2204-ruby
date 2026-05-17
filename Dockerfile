@@ -48,15 +48,21 @@ RUN set -ex \
   && echo "Cache bust: $CACHE_BUST"
 
 FROM base2 AS builder
-ARG RUBY_VERSION=4.0.3
+ARG RUBY_VERSION=4.0.4
 ENV RUBY_VERSION=${RUBY_VERSION}
 ENV PATH=/opt/rbenv/plugins/ruby-build/bin:$PATH
+# Workaround: Ruby 4.0.4 fails on `make install` due to rdoc/ri generation.
+# See https://bugs.ruby-lang.org/issues/22065
+# Remove this block once the upstream fix is released.
 RUN set -ex \
+  && if [ "${RUBY_VERSION}" = "4.0.4" ]; then \
+       export RUBY_CONFIGURE_OPTS="--disable-install-doc"; \
+     fi \
   && ruby-build ${RUBY_VERSION} /opt/ruby
 
 FROM base AS final
 COPY --from=builder /opt/ruby /opt/ruby
-ARG RUBY_VERSION=4.0.3
+ARG RUBY_VERSION=4.0.4
 ENV RUBY_VERSION=${RUBY_VERSION}
 
 LABEL maintainer="masoo" \
