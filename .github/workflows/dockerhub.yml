@@ -11,11 +11,11 @@ permissions:
   contents: read
 
 env:
-  LATEST_RUBY_VERSION: "4.0.5"
+  LATEST_RUBY_VERSION: "4.0.6"
 
 jobs:
   build-latest:
-    name: Build Ruby "4.0.5" (latest)
+    name: Build Ruby "4.0.6" (latest)
     runs-on: ubuntu-latest
     outputs:
       cache-bust: ${{ steps.cache-bust.outputs.value }}
@@ -41,7 +41,7 @@ jobs:
       matrix:
         exclude:
           # Exclude the latest version since it's already built
-          - ruby-version: "4.0.5"
+          - ruby-version: "4.0.6"
         ruby-version: [
           3.0.0, 3.0.1, 3.0.2, 3.0.3, 3.0.4, 3.0.5, 3.0.6, 3.0.7,
           3.1.0, 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5, 3.1.6, 3.1.7,

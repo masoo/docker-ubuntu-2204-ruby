@@ -48,7 +48,7 @@ RUN set -ex \
   && echo "Cache bust: $CACHE_BUST"
 
 FROM base2 AS builder
-ARG RUBY_VERSION=4.0.5
+ARG RUBY_VERSION=4.0.6
 ENV RUBY_VERSION=${RUBY_VERSION}
 ENV PATH=/opt/rbenv/plugins/ruby-build/bin:$PATH
 # Workaround: Ruby 4.0.4 fails on `make install` due to rdoc/ri generation.
@@ -62,7 +62,7 @@ RUN set -ex \
 
 FROM base AS final
 COPY --from=builder /opt/ruby /opt/ruby
-ARG RUBY_VERSION=4.0.5
+ARG RUBY_VERSION=4.0.6
 ENV RUBY_VERSION=${RUBY_VERSION}
 
 LABEL maintainer="masoo" \
