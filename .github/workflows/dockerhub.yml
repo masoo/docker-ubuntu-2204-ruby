@@ -60,3 +60,34 @@ jobs:
           ruby-version: ${{ matrix.ruby-version }}
           enable-cache-to: "false"
           cache-bust: ${{ needs.build-latest.outputs.cache-bust }}
+
+  tag:
+    name: Tag images in version order
+    needs: [build-latest, build-others]
+    # Run even if some builds failed, so that the successful ones still get tagged.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v8
+        with:
+          path: digests
+          pattern: digest-*
+          merge-multiple: true
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      # Docker Hub lists tags by last push time, newest first. Tagging from the
+      # oldest version to the newest puts the latest Ruby at the top of the list.
+      - name: Create tags (oldest version first)
+        run: |
+          mkdir -p digests
+          for version in $(find digests -mindepth 1 -maxdepth 1 -type f -printf '%f\n' | sort -V); do
+            digest="$(cat "digests/${version}")"
+            echo "masoo/ubuntu-2204-ruby:${version} -> ${digest}"
+            docker buildx imagetools create \
+              --tag "masoo/ubuntu-2204-ruby:${version}" \
+              "masoo/ubuntu-2204-ruby@${digest}"
+          done

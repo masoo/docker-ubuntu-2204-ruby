@@ -1,4 +1,5 @@
 name: "login / build / push to dockerhub"
+description: "Build a Ruby image, push it to Docker Hub by digest, and save the digest as an artifact"
 
 inputs:
   docker-username:
@@ -29,26 +30,50 @@ runs:
       with:
         username: ${{ inputs.docker-username }}
         password: ${{ inputs.docker-password }}
-    - name: Build and push Ruby ${{ inputs.ruby-version }} (with cache-to)
+    # The image is pushed by digest only (no tag). The "tag" job in the workflow
+    # tags all images afterwards in version order, so that Docker Hub lists the
+    # newest Ruby version first.
+    - name: Build and push Ruby ${{ inputs.ruby-version }} by digest (with cache-to)
+      id: build-with-cache-to
       if: ${{ inputs.enable-cache-to == 'true' }}
       uses: docker/build-push-action@v7
       with:
         context: .
-        push: true
-        tags: masoo/ubuntu-2204-ruby:${{ inputs.ruby-version }}
+        tags: masoo/ubuntu-2204-ruby
+        outputs: type=image,push-by-digest=true,name-canonical=true,push=true
         build-args: |
           RUBY_VERSION=${{ inputs.ruby-version }}
           CACHE_BUST=${{ inputs.cache-bust }}
         cache-from: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache
         cache-to: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache,mode=max
-    - name: Build and push Ruby ${{ inputs.ruby-version }} (without cache-to)
+    - name: Build and push Ruby ${{ inputs.ruby-version }} by digest (without cache-to)
+      id: build-without-cache-to
       if: ${{ inputs.enable-cache-to != 'true' }}
       uses: docker/build-push-action@v7
       with:
         context: .
-        push: true
-        tags: masoo/ubuntu-2204-ruby:${{ inputs.ruby-version }}
+        tags: masoo/ubuntu-2204-ruby
+        outputs: type=image,push-by-digest=true,name-canonical=true,push=true
         build-args: |
           RUBY_VERSION=${{ inputs.ruby-version }}
           CACHE_BUST=${{ inputs.cache-bust }}
         cache-from: type=registry,ref=masoo/ubuntu-2204-ruby:buildcache
+    - name: Export digest
+      shell: bash
+      env:
+        DIGEST: ${{ steps.build-with-cache-to.outputs.digest || steps.build-without-cache-to.outputs.digest }}
+        RUBY_VERSION: ${{ inputs.ruby-version }}
+      run: |
+        if [ -z "${DIGEST}" ]; then
+          echo "::error::image digest is empty"
+          exit 1
+        fi
+        mkdir -p "${RUNNER_TEMP}/digests"
+        echo "${DIGEST}" > "${RUNNER_TEMP}/digests/${RUBY_VERSION}"
+    - name: Upload digest
+      uses: actions/upload-artifact@v7
+      with:
+        name: digest-${{ inputs.ruby-version }}
+        path: ${{ runner.temp }}/digests/*
+        if-no-files-found: error
+        retention-days: 1
