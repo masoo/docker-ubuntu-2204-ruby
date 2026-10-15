@@ -76,4 +76,4 @@ runs:
         name: digest-${{ inputs.ruby-version }}
         path: ${{ runner.temp }}/digests/*
         if-no-files-found: error
-        retention-days: 1
+        retention-days: 3

@@ -74,20 +74,39 @@ jobs:
           path: digests
           pattern: digest-*
           merge-multiple: true
+      - name: Set up crane
+        uses: imjasonh/setup-crane@v0.4
       - name: Login to DockerHub
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      # A HEAD request does not count towards the pull rate limit.
+      - name: Show Docker Hub pull rate limit
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+        run: |
+          token="$(curl -fsS -u "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" \
+            "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)"
+          curl -fsS --head -H "Authorization: Bearer ${token}" \
+            https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i '^ratelimit' || true
       # Docker Hub lists tags by last push time, newest first. Tagging from the
       # oldest version to the newest puts the latest Ruby at the top of the list.
+      # "crane tag" fetches only the top-level manifest (one pull per version),
+      # while "buildx imagetools create" also fetches every child manifest.
       - name: Create tags (oldest version first)
         run: |
           mkdir -p digests
           for version in $(find digests -mindepth 1 -maxdepth 1 -type f -printf '%f\n' | sort -V); do
             digest="$(cat "digests/${version}")"
             echo "masoo/ubuntu-2204-ruby:${version} -> ${digest}"
-            docker buildx imagetools create \
-              --tag "masoo/ubuntu-2204-ruby:${version}" \
-              "masoo/ubuntu-2204-ruby@${digest}"
+            for i in 1 2 3; do
+              crane tag "masoo/ubuntu-2204-ruby@${digest}" "${version}" && break
+              if [ "${i}" = 3 ]; then
+                exit 1
+              fi
+              echo "retry in $((i * 30))s..."
+              sleep $((i * 30))
+            done
           done
